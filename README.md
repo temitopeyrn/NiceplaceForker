@@ -48,3 +48,24 @@ http://localhost:5000
 - API endpoint for form submissions
 - CORS support for cross-origin requests
 - Telegram integration for login notifications
+
+## Deployment
+
+This application includes deployment configurations for multiple platforms:
+
+- Docker deployment via Dockerfile and docker-compose.yml
+- Heroku deployment via Procfile
+- Vercel deployment via vercel.json
+- Netlify deployment via netlify.toml
+- Manual server deployment via deploy.sh
+
+To prepare the application for deployment:
+
+```bash
+chmod +x prepare-deployment.sh
+./prepare-deployment.sh
+```
+
+This will create a deployment-ready package in the `deployment-package` directory.
+
+For detailed deployment instructions for various platforms, see [DEPLOYMENT.md](DEPLOYMENT.md).

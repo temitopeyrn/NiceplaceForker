@@ -21,6 +21,17 @@ Before deploying, ensure you have:
 - npm 6.x or higher installed
 - Git installed (for certain deployment methods)
 
+### Important Note About package.json
+
+This project includes a `package.json.deploy` file which contains the recommended package configuration for deployment. Before deploying to any platform outside of Replit, rename this file to `package.json`:
+
+```bash
+# When deploying
+mv package.json.deploy package.json
+```
+
+This step is important as the default package.json is configured specifically for Replit environment.
+
 ## Local Deployment
 
 For local deployment, simply run:
