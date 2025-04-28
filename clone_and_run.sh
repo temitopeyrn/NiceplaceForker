@@ -3,18 +3,24 @@
 # Set error handling
 set -e
 
+# Verify Node.js installation
+echo "Node.js version: $(node --version)"
+echo "NPM version: $(npm --version)"
+
 echo "Starting Niceplace web application setup..."
 
 # Clone the repository or update if it already exists
 echo "Checking for existing repository..."
 if [ -d "Niceplace" ]; then
-    echo "Repository already exists, updating it..."
+    echo "Repository already exists, using the existing code..."
     cd Niceplace
-    git pull
+    # No need to pull, as we don't have tracking set up properly
+    # Just use the existing code as is
 else
     echo "Cloning the repository..."
     git clone https://github.com/kashflowNG/Niceplace.git
     cd Niceplace
+    # We don't need to set up tracking since we won't be pulling again
 fi
 
 # Determine the type of application and install dependencies
@@ -56,14 +62,11 @@ echo "Determining how to start the application..."
 
 # Check for specific start scripts in package.json if it's a Node.js app
 if [ -f "package.json" ]; then
-    # Install development dependencies if needed
-    echo "Installing additional development dependencies..."
-    npm install -g tsx
-    
-    # Check if we need to install any specific packages based on errors
+    # Check for TSX - it should be installed in the environment already
+    echo "Checking for required dependencies..."
     if ! command -v tsx &> /dev/null; then
-        echo "Installing tsx globally..."
-        npm install -g tsx
+        echo "TSX not found in PATH, using the one we installed via packager_tool..."
+        export PATH="$PATH:$(pwd)/../node_modules/.bin"
     fi
     
     # Modify the Vite config to use port 5000
@@ -76,8 +79,14 @@ if [ -f "package.json" ]; then
     # with server/index.ts as the entry point
     if [ -f "server/index.ts" ]; then
         echo "Found server/index.ts, using 'dev' script for development mode..."
-        # The application already has port 5000 configured in server/index.ts
-        NODE_ENV=development npm run dev
+        # Set environment variables for proper configuration
+        export NODE_ENV=development
+        export PORT=5000
+        export HOST=0.0.0.0
+        
+        # Run the dev script which should use the environment variables
+        echo "Starting the application on port 5000..."
+        npm run dev
     else
         # Fallback to standard approaches
         echo "Using standard Node.js application startup..."
