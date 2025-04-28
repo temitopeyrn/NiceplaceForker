@@ -1,0 +1,14 @@
+[build]
+  command = "npm install"
+  publish = "."
+  functions = "functions"
+
+[dev]
+  command = "npm start"
+  port = 5000
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
